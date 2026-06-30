@@ -1,0 +1,21 @@
+{
+    "name": "php-concept/extension-logger-monolog",
+    "description": "Concept Logger extension — Monolog rotating file logging with optional data masking",
+    "version": "1.0.0",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Concept\\Extensions\\LoggerMonolog\\": "src/"
+        }
+    },
+    "require": {
+        "php": "^8.4",
+        "monolog/monolog": "^3",
+        "psr/log": "^3",
+        "php-concept/extension-data-masker": "^1.0",
+        "php-concept/extension-event": "^1.0",
+        "league/container": "^5.1",
+        "psr/event-dispatcher": "^1.0"
+    }
+}
