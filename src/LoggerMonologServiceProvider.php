@@ -2,6 +2,7 @@
 
 namespace Concept\Extensions\LoggerMonolog;
 
+use Closure;
 use Concept\Extensions\DataMasker\Contracts\DataMaskerInterface;
 use Concept\Extensions\Event\Events\ExtensionAwakened;
 use Concept\Extensions\Event\Support\EventDispatcherResolver;
@@ -19,11 +20,15 @@ final class LoggerMonologServiceProvider extends AbstractServiceProvider impleme
 {
     private const string EXTENSION_NAME = 'logger-monolog';
 
+    /**
+     * @param Closure(): ?DataMaskerInterface|null $dataMaskerFactory
+     */
     public function __construct(
         private readonly string $path,
         private readonly string $level,
         private readonly int $maxFiles,
         private readonly string $channel,
+        private readonly ?Closure $dataMaskerFactory = null,
     ) {}
 
     public function provides(string $id): bool
@@ -44,13 +49,20 @@ final class LoggerMonologServiceProvider extends AbstractServiceProvider impleme
             $monolog = new Monolog($this->channel);
             $this->setup($monolog, $container);
 
-            /** @var DataMaskerInterface|null $masker */
-            $masker = $container->has(DataMaskerInterface::class)
-                ? $container->get(DataMaskerInterface::class)
-                : null;
-
-            return new Logger($monolog, $masker);
+            return new Logger($monolog, $this->resolveDataMasker());
         })->setShared(true);
+    }
+
+    private function resolveDataMasker(): ?DataMaskerInterface
+    {
+        if ($this->dataMaskerFactory === null) {
+            return null;
+        }
+
+        $dataMaskerFactory = $this->dataMaskerFactory;
+        $masker = $dataMaskerFactory();
+
+        return $masker instanceof DataMaskerInterface ? $masker : null;
     }
 
     public function boot(): void
