@@ -24,7 +24,7 @@ final class LoggerMonologServiceProvider extends AbstractServiceProvider impleme
      * @param Closure(): ?DataMaskerInterface|null $dataMaskerFactory
      */
     public function __construct(
-        private readonly string $path,
+        private readonly string $logFilePath,
         private readonly string $level,
         private readonly int $maxFiles,
         private readonly string $channel,
@@ -81,7 +81,7 @@ final class LoggerMonologServiceProvider extends AbstractServiceProvider impleme
             $logLevel = Level::Debug;
         }
 
-        $monolog->pushHandler(new RotatingFileHandler($this->path, $this->maxFiles, $logLevel));
+        $monolog->pushHandler(new RotatingFileHandler($this->logFilePath, $this->maxFiles, $logLevel));
 
         if ($container->has(LogHandlerRegistry::class)) {
             /** @var LogHandlerRegistry $registry */
