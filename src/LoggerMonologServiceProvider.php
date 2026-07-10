@@ -7,6 +7,7 @@ use Concept\Extensions\DataMasker\Contracts\DataMaskerInterface;
 use Concept\Extensions\Event\Events\ExtensionAwakened;
 use Concept\Extensions\Event\Support\EventDispatcherResolver;
 use Concept\Extensions\LoggerMonolog\Contracts\LoggerInterface;
+use Concept\Support\FactoryResolver;
 use League\Container\ServiceProvider\AbstractServiceProvider;
 use League\Container\ServiceProvider\BootableServiceProviderInterface;
 use Monolog\Handler\RotatingFileHandler;
@@ -55,14 +56,11 @@ final class LoggerMonologServiceProvider extends AbstractServiceProvider impleme
 
     private function resolveDataMasker(): ?DataMaskerInterface
     {
-        if ($this->dataMaskerFactory === null) {
-            return null;
-        }
-
-        $dataMaskerFactory = $this->dataMaskerFactory;
-        $masker = $dataMaskerFactory();
-
-        return $masker instanceof DataMaskerInterface ? $masker : null;
+        return FactoryResolver::optional(
+            $this->dataMaskerFactory,
+            DataMaskerInterface::class,
+            'Data masker factory result',
+        );
     }
 
     public function boot(): void
