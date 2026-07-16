@@ -8,29 +8,33 @@ use Concept\Extensions\Event\Events\ExtensionAwakened;
 use Concept\Extensions\Event\Support\EventDispatcherResolver;
 use Concept\Extensions\LoggerMonolog\Contracts\LoggerInterface;
 use Concept\Support\FactoryResolver;
+use InvalidArgumentException;
 use League\Container\ServiceProvider\AbstractServiceProvider;
 use League\Container\ServiceProvider\BootableServiceProviderInterface;
-use Monolog\Handler\RotatingFileHandler;
-use Monolog\Level;
+use Monolog\Handler\HandlerInterface;
 use Monolog\Logger as Monolog;
 use Monolog\Processor\PsrLogMessageProcessor;
 use Psr\Container\ContainerInterface;
-use Throwable;
 
 final class LoggerMonologServiceProvider extends AbstractServiceProvider implements BootableServiceProviderInterface
 {
     private const string EXTENSION_NAME = 'logger-monolog';
 
+    private const string ERR_EMPTY_HANDLERS = 'LoggerMonologServiceProvider requires at least one Monolog handler.';
+
     /**
+     * @param list<HandlerInterface> $handlers Primary Monolog handlers (file, stderr, custom, …).
      * @param Closure(): ?DataMaskerInterface|null $dataMaskerFactory
      */
     public function __construct(
-        private readonly string $logFilePath,
-        private readonly string $level,
-        private readonly int $maxFiles,
-        private readonly string $channel,
+        private readonly array $handlers,
+        private readonly string $channel = 'app',
         private readonly ?Closure $dataMaskerFactory = null,
-    ) {}
+    ) {
+        if ($this->handlers === []) {
+            throw new InvalidArgumentException(self::ERR_EMPTY_HANDLERS);
+        }
+    }
 
     public function provides(string $id): bool
     {
@@ -72,14 +76,9 @@ final class LoggerMonologServiceProvider extends AbstractServiceProvider impleme
 
     private function setup(Monolog $monolog, ContainerInterface $container): void
     {
-        try {
-            /** @phpstan-ignore-next-line */
-            $logLevel = Level::fromName($this->level);
-        } catch (Throwable) {
-            $logLevel = Level::Debug;
+        foreach ($this->handlers as $handler) {
+            $monolog->pushHandler($handler);
         }
-
-        $monolog->pushHandler(new RotatingFileHandler($this->logFilePath, $this->maxFiles, $logLevel));
 
         if ($container->has(LogHandlerRegistry::class)) {
             /** @var LogHandlerRegistry $registry */

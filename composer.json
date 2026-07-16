@@ -1,6 +1,6 @@
 {
     "name": "php-concept/extension-logger-monolog",
-    "description": "Concept Logger extension — Monolog rotating file logging with optional data masking",
+    "description": "Concept Logger extension — Monolog with explicit handlers and optional data masking",
     "type": "library",
     "license": "MIT",
     "autoload": {
