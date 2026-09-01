@@ -1,6 +1,6 @@
 {
     "name": "php-concept/extension-logger-monolog",
-    "description": "Concept Logger extension — Monolog with explicit handlers and optional data masking",
+    "description": "Concept Logger extension \u2014 Monolog with explicit handlers and optional data masking",
     "type": "library",
     "license": "MIT",
     "autoload": {
@@ -17,5 +17,16 @@
         "php-concept/support": "^1.0",
         "league/container": "^5.1",
         "psr/event-dispatcher": "^1.0"
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^11"
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit"
     }
 }
